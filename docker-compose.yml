@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  mysql-solicitacao:
+    container_name: mysql-solicitacao
+    ports:
+      - "3309:3306"
+    image: mysql
+    # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
+    # (this is just an example, not intended to be a production configuration)
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      #- ./mysql-source:/var/source
+
+
+  php-solicitacao:
+    container_name: php-solicitacao
+    build:
+      context: ./php
+    ports:
+        - '8081:80'
+    volumes:
+      - .:/var/www/api
+      - ./apache/default.conf:/etc/apache2/sites-enabled/000-default.conf
+    depends_on:
+      - mysql-solicitacao
